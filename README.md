@@ -4,4 +4,4 @@ These are files used in the paper _Asessing the risk of COVID-19 importation and
 
 ## Quarantine calculator
 
-The (R) Shiny app `Q_calculator_shiny.R` is a quarantine efficacy calculator. You can set disease progression paramaters and the duration of quarantune. It is based on the SLIAR model in the paper and provides two views: the efficacy of quarantine, which we define as the percentage of unobservable cases ($L_1$, $L_2$, $A_1$ and $A_2$) that are still unobservable at the end of the quarantine period; and the trajectories of individuals that start in one of these unobservable states.
+The (R) Shiny app `Q_calculator_shiny.R` is a quarantine efficacy calculator. You can set disease progression paramaters and the duration of quarantune. It is based on the SLIAR model in the paper and provides two views: the efficacy of quarantine, which we define as the percentage of unobservable cases (L_1, L_2, A_1 and A_2) that are still unobservable at the end of the quarantine period; and the trajectories of individuals that start in one of these unobservable states.
