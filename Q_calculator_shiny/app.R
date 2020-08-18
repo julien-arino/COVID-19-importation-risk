@@ -22,7 +22,7 @@ library(alluvial)
 ui <- fluidPage(
     # Application title
     titlePanel("COVID-19 quarantine efficacy calculator"),
-    # Sidebar with a slider input for the number of bins
+    # Sidebar with sliders for the parameter values
     sidebarLayout(
         sidebarPanel(
             sliderInput("t_q",
@@ -32,15 +32,15 @@ ui <- fluidPage(
                         value = 14),
             sliderInput("inv_epsilon",
                         "Avg. incubation period (days):",
-                        min = 2,
-                        max = 9,
-                        value = 6,
+                        min = 1,
+                        max = 10,
+                        value = 5,
                         step = 0.1),
             sliderInput("inv_gamma",
                         "Avg. infectious period (days):",
-                        min = 2,
-                        max = 15,
-                        value = 10,
+                        min = 1,
+                        max = 20,
+                        value = 12,
                         step = 0.1),
             sliderInput("pi",
                         "Prop. asymptomatic or undetected cases:",
@@ -58,9 +58,21 @@ ui <- fluidPage(
             # Output: Tabset w/ plot, summary, and table ----
             tabsetPanel(type = "tabs",
                         tabPanel("Quarantine efficacy", 
-                                 plotOutput("a_distPlot", width = "800px", height = "600px")),
+                                 plotOutput(outputId = "a_distPlot", width = "800px", height = "600px"),
+                                 textOutput(outputId = "desc_efficacy"),
+                                 tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
+                                        "See here for details.", target = "_blank"),
+                                 tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
+                                        "Download the code here.", target = "_blank")
+                        ),
                         tabPanel("Effect of quarantine",
-                                 plotOutput("a_alluvialPlot", width = "800px", height = "600px"))
+                                 plotOutput("a_alluvialPlot", width = "800px", height = "600px"),
+                                 textOutput(outputId = "desc_alluvial"),
+                                 tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
+                                        "See here for details.", target = "_blank"),
+                                 tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
+                                        "Download the code here.", target = "_blank")
+                        )
             )
         )
     )
@@ -170,6 +182,16 @@ server <- function(input, output) {
         }
     })
     
+    # Explanation of efficacy
+    output$desc_efficacy <- renderText({
+        exp_text = "Quarantine efficacy is the probability (expressed in percentage chance) that quarantine is successful."
+        exp_text = paste(exp_text, "Quarantine is successful if an individual who is undetectable when they enter the location,")
+        exp_text = paste(exp_text, "in the sense that they are either incubating with the disease (L) or asymptomatically infected (A),")
+        exp_text = paste(exp_text, "becomes detectable (any other state) during the course of their quarantine.")
+        exp_text = paste(exp_text, "")
+        exp_text = paste(exp_text, "")
+    })
+    
     output$a_alluvialPlot <- renderPlot({
         OUT = RESULTS_NEW()
         data_raw = OUT$expT
@@ -209,6 +231,17 @@ server <- function(input, output) {
                  ordering = list(1:dim(edges)[1],
                                  (order_right)))
     })
+
+        # Explanation of alluvial plot
+    output$desc_alluvial <- renderText({
+        exp_text = "This alluvial plot shows the state of individuals at the start and end of their quarantine. We focus on individuals"
+        exp_text = paste(exp_text, "who are undetectable at the start of quarantine,")
+        exp_text = paste(exp_text, "in the sense that they are either incubating (L) or asymptomatically infected (A) with the disease.")
+        exp_text = paste(exp_text, "Blue flows show individuals who are still undetectable at the end of quarantine and thus are a danger")
+        exp_text = paste(exp_text, "to the population they join after quarantine.")
+        exp_text = paste(exp_text, "")
+    })
+
 }
 
 # Run the application 
