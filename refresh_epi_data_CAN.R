@@ -1,4 +1,6 @@
-# Refresh CAN COVID-19 epi data from U of T source feed
+# Refresh CAN COVID-19 epi data from Isha Berry's source feed
+# https://github.com/ishaberry/Covid19Canada
+# Then initiate simple processing of files
 #
 # This script is intended to be run automatically daily, for instance from crontab
 #
