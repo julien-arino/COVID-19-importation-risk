@@ -30,7 +30,11 @@ ui <- fluidPage(
     sidebarLayout(
         sidebarPanel(
             selectInput("show", "Show:", 
-                        choices = c("I1+I2", "I1+I2+A1+A2")),
+                        choices = c("I1+I2 (symptomatic cases)" = "I1+I2", 
+                                    "A1+A2 (asymptomatic cases)" = "A1+A2",
+                                    "L1+L2 (incubating cases)" = "L1+L2",
+                                    "I1+I2+A1+A2 (infectious cases)" = "I1+I2+A1+A2",
+                                    "L1+L2+I1+I2+A1+A2 (all cases)" = "L1+L2+I1+I2+A1+A2")),
             selectInput("import_type", "Type of import case:", 
                         choices = c("L1", "L2", "A1", "A2", "I1", "I2"),
                         selected = "L2"),
@@ -96,6 +100,7 @@ ui <- fluidPage(
             # Output: Tabset w/ plot, summary, and table ----
             tabsetPanel(type = "tabs",
                         tabPanel("Plot", plotOutput("a_distPlot", width = "800px", height = "600px"),
+                                 textOutput(outputId = "desc_sims"),
                                  tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
                                         "See the paper for details.", target = "_blank"),
                                  tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
@@ -187,24 +192,69 @@ server <- function(input, output) {
                             tf = params$tf,
                             tl.params = list(epsilon=0.01))
         interp = list()
-        interp[["I1"]] <- approx(r[,"time"], r[,"I1"], 
-                                 params$times, ties = "ordered", 
-                                 rule = 2)
-        interp[["I2"]] <- approx(r[,"time"], r[,"I2"], 
-                                 params$times, ties = "ordered", 
-                                 rule = 2)
         if (params$show == "I1+I2") {
+            interp[["I1"]] <- approx(r[,"time"], r[,"I1"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            interp[["I2"]] <- approx(r[,"time"], r[,"I2"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
             results <- data.frame(interp[["I1"]]$y+interp[["I2"]]$y)
-        } else {
+        } else if (params$show == "A1+A2") {
             interp[["A1"]] <- approx(r[,"time"], r[,"A1"], 
                                      params$times, ties = "ordered", 
                                      rule = 2)
             interp[["A2"]] <- approx(r[,"time"], r[,"A2"], 
                                      params$times, ties = "ordered", 
                                      rule = 2)
-            results <- data.frame(interp[["I1"]]$y+interp[["I2"]]$y+interp[["A1"]]$y+interp[["A2"]]$y)
+            results <- data.frame(interp[["A1"]]$y+interp[["A2"]]$y)
+        } else if (params$show == "L1+L2") {
+        interp[["L1"]] <- approx(r[,"time"], r[,"L1"], 
+                                 params$times, ties = "ordered", 
+                                 rule = 2)
+        interp[["L2"]] <- approx(r[,"time"], r[,"L2"], 
+                                 params$times, ties = "ordered", 
+                                 rule = 2)
+        results <- data.frame(interp[["L1"]]$y+interp[["L2"]]$y)
+        } else if (params$show == "I1+I2+A1+A2") {
+            interp[["I1"]] <- approx(r[,"time"], r[,"I1"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            interp[["I2"]] <- approx(r[,"time"], r[,"I2"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            interp[["A1"]] <- approx(r[,"time"], r[,"A1"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            interp[["A2"]] <- approx(r[,"time"], r[,"A2"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            results <- data.frame(interp[["I1"]]$y + interp[["I2"]]$y +
+                                      interp[["A1"]]$y + interp[["A2"]]$y)
+        }  else if (params$show == "L1+L2+I1+I2+A1+A2") {
+            interp[["L1"]] <- approx(r[,"time"], r[,"L1"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            interp[["L2"]] <- approx(r[,"time"], r[,"L2"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            interp[["I1"]] <- approx(r[,"time"], r[,"I1"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            interp[["I2"]] <- approx(r[,"time"], r[,"I2"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            interp[["A1"]] <- approx(r[,"time"], r[,"A1"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            interp[["A2"]] <- approx(r[,"time"], r[,"A2"], 
+                                     params$times, ties = "ordered", 
+                                     rule = 2)
+            results <- data.frame(interp[["L1"]]$y + interp[["L2"]]$y +
+                                      interp[["I1"]]$y + interp[["I2"]]$y +
+                                      interp[["A1"]]$y + interp[["A2"]]$y)
         }
-        colnames(results) <- c("I1")
+    colnames(results) <- c("I1")
         return(results)
     }
 
@@ -403,6 +453,13 @@ server <- function(input, output) {
         }
         print(round(nb_extinctions/OUT$params[["nb_sims"]]*100,2))
     })
+    
+    # Explanation of alluvial plot
+    output$desc_sims <- renderText({
+        exp_text = "This plot shows prevalence (of the selected variables) through time of 100 simulations of an SLIAR model."
+        exp_text = paste(exp_text, "Initial importation is of one case of the selected type.")
+    })
+    
     
 }
 
