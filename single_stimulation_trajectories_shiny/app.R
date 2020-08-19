@@ -22,6 +22,12 @@ library(adaptivetau)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
+    # Some play with fonts to make stuff a little smaller. Experimental..
+    tags$head(tags$style(HTML("
+        .selectize-input, .selectize-dropdown {
+          font-size: 85%;
+        }"
+    ))),
 
     # Application title
     titlePanel("Single stimulation simulations"),
