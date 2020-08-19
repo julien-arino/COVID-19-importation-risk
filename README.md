@@ -4,4 +4,8 @@ These are files used in and as a complement to the paper _Assessing the risk of 
 
 ## Quarantine calculator
 
-The (R) Shiny app `Q_calculator_shiny` is a quarantine efficacy calculator. It is also available directly online [here](http://35.182.10.46:3838/Q_calculator/). You can set disease progression paramaters and the duration of quarantine. It is based on the SLIAR model in the paper and provides two views: the efficacy of quarantine, which we define as the percentage of unobservable cases (L_1, L_2, A_1 and A_2) that are still unobservable at the end of the quarantine period; and the trajectories of individuals that start in one of these unobservable states.
+The (R) Shiny app `Q_calculator_shiny` is a quarantine efficacy calculator. It is also running online [here](http://35.182.10.46:3838/Q_calculator/). You can set disease progression paramaters and the duration of quarantine. It is based on the SLIAR model in the paper and provides two views: the efficacy of quarantine, which we define as the percentage of unobservable cases (L_1, L_2, A_1 and A_2) that are still unobservable at the end of the quarantine period; and the trajectories of individuals that start in one of these unobservable states.
+
+## Single stimulation simulations
+
+The (R) Shiny app `single_stimulation_simulations_shiny` runs a number of single stimulation simulations. It is also running online [here](http://35.182.10.46:3838/single_stimulation_trajectories_shiny/). It allows you to change most model parameters. 
