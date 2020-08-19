@@ -61,17 +61,17 @@ ui <- fluidPage(
                                  plotOutput(outputId = "a_distPlot", width = "800px", height = "600px"),
                                  textOutput(outputId = "desc_efficacy"),
                                  tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
-                                        "See here for details.", target = "_blank"),
+                                        "See the paper for details.", target = "_blank"),
                                  tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
-                                        "Download the code here.", target = "_blank")
+                                        "Download the code from Github.", target = "_blank")
                         ),
                         tabPanel("Effect of quarantine",
                                  plotOutput("a_alluvialPlot", width = "800px", height = "600px"),
                                  textOutput(outputId = "desc_alluvial"),
                                  tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
-                                        "See here for details.", target = "_blank"),
+                                        "See the paper for details.", target = "_blank"),
                                  tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
-                                        "Download the code here.", target = "_blank")
+                                        "Download the code from Github.", target = "_blank")
                         )
             )
         )

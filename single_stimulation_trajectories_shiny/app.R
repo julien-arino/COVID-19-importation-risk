@@ -24,15 +24,24 @@ library(adaptivetau)
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Single stimulation simulation"),
+    titlePanel("Single stimulation simulations"),
     
     # Sidebar with a slider input for the number of bins
     sidebarLayout(
         sidebarPanel(
             selectInput("show", "Show:", 
                         choices = c("I1+I2", "I1+I2+A1+A2")),
-            numericInput("pop_size", "Population size:", value = 35874, min = 100, max = 1000000),
+            selectInput("import_type", "Type of import case:", 
+                        choices = c("L1", "L2", "A1", "A2", "I1", "I2"),
+                        selected = "L2"),
+            numericInput("pop_size", "Population size:", value = 35874, min = 100),
             withMathJax(),
+            sliderInput("R_0",
+                        "Basic reproduction number  \\(R_0\\):",
+                        min = 0.5,
+                        max = 4,
+                        value = 2.2,
+                        step = 0.1),
             sliderInput("inv_epsilon",
                         "Average incubation period \\(2/\\varepsilon\\) (days):",
                         min = 2,
@@ -58,17 +67,14 @@ ui <- fluidPage(
                         min = 0,
                         max = 1,
                         value = 0.4),
+            # Not used since the plots and information shown will not reflect changes in this
+            # value. To use, uncomment the lines below and params$delta = input$delta below
+            # to use slider for delta.
             # sliderInput("delta",
             #             "Proportion of symptomatic cases leading to death:",
             #             min = 0,
             #             max = 1,
             #             value = 0.03),
-            sliderInput("R_0",
-                        "Basic reproduction number  \\(R_0\\):",
-                        min = 0.5,
-                        max = 4,
-                        value = 2.2,
-                        step = 0.1),
             sliderInput("tf",
                         "Final time:",
                         min = 1,
@@ -91,15 +97,15 @@ ui <- fluidPage(
             tabsetPanel(type = "tabs",
                         tabPanel("Plot", plotOutput("a_distPlot", width = "800px", height = "600px"),
                                  tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
-                                        "See here for details.", target = "_blank"),
+                                        "See the paper for details.", target = "_blank"),
                                  tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
-                                        "Download the code here.", target = "_blank")
+                                        "Download the code from Github.", target = "_blank")
                         ),
                         tabPanel("Summary", verbatimTextOutput("summary"),
                                  tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
-                                        "See here for details.", target = "_blank"),
+                                        "See the paper for details.", target = "_blank"),
                                  tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
-                                        "Download the code here.", target = "_blank")
+                                        "Download the code from Github.", target = "_blank")
                         )
                         #tabPanel("Table", tableOutput("table"))
             )
@@ -218,8 +224,9 @@ server <- function(input, output) {
         params$xi = input$xi
         params$eta = input$eta
         params$pi = input$pi
-        #params$delta = input$delta
         params$delta = 0.03
+        # Uncomment this and slider above to use slider on delta
+        #params$delta = input$delta
         params$R_0 = input$R_0
         # epsilon and gamma need to be computed
         if (input$inv_gamma>0) {
@@ -242,13 +249,15 @@ server <- function(input, output) {
         IC = c(S = params$S0,
                L1 = 0,
                L2 = 0,
-               I1 = 1,
+               I1 = 0,
                I2 = 0,
                A1 = 0,
                A2 = 0,
                RI = 0,
                RA = 0,
                D = 0)
+        # Set import case to be of the type desired
+        IC[input$import_type] = 1 
         
         params$t0 = 0
         params$tf = input$tf
