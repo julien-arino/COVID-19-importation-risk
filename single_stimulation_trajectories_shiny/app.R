@@ -75,6 +75,8 @@ ui <- fluidPage(
                         max = 60,
                         value = 30,
                         step = 1),
+            # Not allowed to change for run on tiny AWS server. Uncomment this and the line
+            # somewhere below that says params$nb_sims = input$nb_sims.
             # sliderInput("nb_sims",
             #             "Number of simulations:",
             #             min = 1,
@@ -208,7 +210,7 @@ server <- function(input, output) {
         OUT = list()
         # Get parameters from console
         params <- list()
-        # Type of outout
+        # Type of output
         params$show = input$show
         # Tailor to location
         params$S0 = input$pop_size
@@ -254,8 +256,9 @@ server <- function(input, output) {
                             to = params$tf, 
                             by = 0.1)
         params$length_times <- length(params$times)
-        #params$nb_sims = input$nb_sims
         params$nb_sims = 100
+        # Uncomment this and the slider code at top to allow this to change.
+        #params$nb_sims = input$nb_sims
         
         OUT$params = params 
 
@@ -264,6 +267,8 @@ server <- function(input, output) {
         
         inputs = 1:params[["nb_sims"]]
         
+        # Change FALSE to TRUE to run in parallel. Only useful if the number of simulations
+        # is large enough.
         if (FALSE) {
             numCores <- detectCores()
             cl <- makeCluster(numCores)  
@@ -329,7 +334,7 @@ server <- function(input, output) {
         
         # Plot non-conditioned average
         results_raw = results_raw / OUT$params[["nb_sims"]]
-        lines(OUT$params[["times"]],results_raw,col="blue",type="l",lwd=4)
+        lines(OUT$params[["times"]],results_raw,col="dodgerblue4",type="l",lwd=4)
         # Plot average conditioned on non-extinction
         results_conditioned = results_conditioned / nb_sims_non_extinct
         lines(OUT$params[["times"]],results_conditioned,col="red",type="l",lwd=4)
@@ -349,7 +354,7 @@ server <- function(input, output) {
                                      "Average (all realizations)",
                                      "Average (non-extinction)",
                                      "ODE"), 
-               col=c("blue","red","blue","red","green"), 
+               col=c("dodgerblue4","red","dodgerblue4","red","green"), 
                lwd = c(1,1,2,2), lty = c(1,1,1,1))
         
     })
