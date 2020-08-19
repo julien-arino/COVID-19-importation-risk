@@ -1,3 +1,11 @@
+# COVID-19 single introduction response simulation
+# 
+# Based on the paper "Assessing the risk of COVID-19 importation and the effect of quarantine"
+# by Julien Arino, Nicolas Bajeux, Stephanie Portet and James Watmough
+# https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1
+# 
+# See the paper for details
+#
 #
 # This is a Shiny web application. You can run the application by clicking
 # the 'Run App' button above.
@@ -5,8 +13,6 @@
 # Find out more about building applications with Shiny here:
 #
 #    http://shiny.rstudio.com/
-#
-# CTMC SIR with vaccination
 
 library(shiny)
 library(deSolve)
@@ -18,7 +24,7 @@ library(adaptivetau)
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Assessing risk of importation using a CTMC SLLIIAARRD"),
+    titlePanel("Single stimulation simulation"),
     
     # Sidebar with a slider input for the number of bins
     sidebarLayout(
@@ -81,8 +87,18 @@ ui <- fluidPage(
         mainPanel(
             # Output: Tabset w/ plot, summary, and table ----
             tabsetPanel(type = "tabs",
-                        tabPanel("Plot", plotOutput("a_distPlot", width = "800px", height = "700px")),
-                        tabPanel("Summary", verbatimTextOutput("summary"))
+                        tabPanel("Plot", plotOutput("a_distPlot", width = "800px", height = "600px"),
+                                 tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
+                                        "See here for details.", target = "_blank"),
+                                 tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
+                                        "Download the code here.", target = "_blank")
+                        ),
+                        tabPanel("Summary", verbatimTextOutput("summary"),
+                                 tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
+                                        "See here for details.", target = "_blank"),
+                                 tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
+                                        "Download the code here.", target = "_blank")
+                        )
                         #tabPanel("Table", tableOutput("table"))
             )
         )
