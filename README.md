@@ -11,3 +11,7 @@ The (R) Shiny app `Q_calculator_shiny` is a quarantine efficacy calculator. It i
 ## Single stimulation simulations
 
 The (R) Shiny app `single_stimulation_simulations_shiny` runs a number of single stimulation simulations. It is also running online [here](http://35.182.10.46:3838/single_stimulation_trajectories_shiny/). It allows you to change most model parameters. 
+
+## Number of jurisdictions with new cases
+
+The (R) Shiny app `CAN_PT_HR_new_cases_shiny` (running online [here](http://35.182.10.46:3838/CAN_PT_HR_new_cases_shiny/)) allows to produce variations on what is at present the first figure in the paper. When considering imporations or reimportations, it is useful to know how long a jurisdiction has been with/without cases. For now, we only show here jurisdictions in Canada. Code to update the epidemic information is provided (`refresh_epi_data_CAN.R`, `process_epi_data_CAN_confirmed.R` and `process_epi_data_CAN_deaths.R`).
