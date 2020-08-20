@@ -8,3 +8,11 @@ and the data is output to
 ```
 /home/username/DATA
 ```
+The Shiny app is run from the default Shiny Server location, by issuing the following command 
+```
+sudo ln -s /home/username/github/covid-19-importation-risk/CAN_PT_HR_new_cases_shiny /srv/shiny-server/CAN_PT_HR_new_cases_shiny
+```
+The data directories are then linked by using
+```
+sudo ln -s /home/username/DATA /home/username/github/covid-19-importation-risk/CAN_PT_HR_new_cases_shiny/data
+```
