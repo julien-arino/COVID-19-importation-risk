@@ -20,7 +20,7 @@ library(lubridate)
 # Define UI for application that draws a histogram
 ui <- fluidPage(
     # Application title
-    titlePanel("Single stimulation simulations"),
+    titlePanel("Percentage of jurisdictions with new cases"),
     
     # Sidebar with a slider input for the number of days since last confirmed case
     sidebarLayout(
