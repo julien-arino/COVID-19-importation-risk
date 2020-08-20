@@ -59,7 +59,7 @@ server <- function(input, output) {
     RESULTS <- reactive({
         # Prepare results
         OUT = list()
-        OUT$nb_days_delay = input$nb_days_delay
+        OUT$nb_days_delay = as.numeric(input$nb_days_delay)
         return(OUT)
     })
 
@@ -82,45 +82,39 @@ server <- function(input, output) {
         daily_activity_HR = DATA$incidence_province_hr[3:dim(DATA$incidence_province_hr)[2]]
         daily_activity_PT = DATA$incidence_PT[2:dim(DATA$incidence_PT)[2]]
         dates_data = as_date(colnames(daily_activity_HR))
-        nb_HR_with_cases = c()
-        nb_PT_with_cases = c()
-        for (i in 1:length(dates_data)) {
-            nb_HR_with_cases = c(nb_HR_with_cases, length(daily_activity_HR[daily_activity_HR[,i]>0,i]))
-            nb_PT_with_cases = c(nb_PT_with_cases, length(daily_activity_PT[daily_activity_PT[,i]>0,i]))
-        }
         # Determine, at a given point in time, which jurisdictions had a case in the past N days. That's the "delay"
         delay = OUT$nb_days_delay
         t_start = dates_data[1]+delay
         t_end = dates_data[length(dates_data)]
         dates_checked = seq(from = t_start, to = t_end, by = "days")
         
-        nb_HR_with_cases_2weeks = c()
-        nb_PT_with_cases_2weeks = c()
+        nb_HR_with_cases_Ndays = c()
+        nb_PT_with_cases_Ndays = c()
         
         for (dd in dates_checked) {
             dd = as_date(dd)
-            past_2_weeks = seq(from = (dd-delay), to = dd, by = "days")
-            tmp_HR = rowSums(daily_activity_HR[,as.character(past_2_weeks)])
-            nb_HR_with_cases_2weeks = c(nb_HR_with_cases_2weeks,
+            past_Ndays = seq(from = (dd-delay), to = dd, by = "days")
+            tmp_HR = rowSums(daily_activity_HR[,as.character(past_Ndays)])
+            nb_HR_with_cases_Ndays = c(nb_HR_with_cases_Ndays,
                                         length(tmp_HR[tmp_HR>0]))
-            tmp_PT = rowSums(daily_activity_PT[,as.character(past_2_weeks)])
-            nb_PT_with_cases_2weeks = c(nb_PT_with_cases_2weeks,
+            tmp_PT = rowSums(daily_activity_PT[,as.character(past_Ndays)])
+            nb_PT_with_cases_Ndays = c(nb_PT_with_cases_Ndays,
                                         length(tmp_PT[tmp_PT>0]))
         }
         
-        nb_PT_with_cases_2weeks = nb_PT_with_cases_2weeks/13*100
-        nb_HR_with_cases_2weeks = nb_HR_with_cases_2weeks/112*100
-        y_max = max(max(nb_PT_with_cases_2weeks), max(nb_HR_with_cases_2weeks))
+        nb_PT_with_cases_Ndays = nb_PT_with_cases_Ndays/13*100 # 13 P/T
+        nb_HR_with_cases_Ndays = nb_HR_with_cases_Ndays/112*100 # 112 HR
+        y_max = max(max(nb_PT_with_cases_Ndays), max(nb_HR_with_cases_Ndays))
         
         
-        plot(dates_checked, nb_PT_with_cases_2weeks,
+        plot(dates_checked, nb_PT_with_cases_Ndays,
              type = "b",
              lwd = 2,
              col = "red",
              pch = 21, 
              ylim = c(0, 100),
              xlab = "Date", ylab = "Percent with new cases in past 3 weeks")
-        lines(dates_checked, nb_HR_with_cases_2weeks,
+        lines(dates_checked, nb_HR_with_cases_Ndays,
               type = "b",
               lwd = 2,
               pch = 17,
