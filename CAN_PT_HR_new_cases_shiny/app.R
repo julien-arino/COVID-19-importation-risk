@@ -15,6 +15,7 @@
 #    http://shiny.rstudio.com/
 
 library(shiny)
+library(lubridate)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -29,8 +30,7 @@ ui <- fluidPage(
                         "Number of days to look back:",
                         min = 0,
                         max = 100,
-                        value = 21,
-                        step = 7),
+                        value = 21),
         ),
         
         # Show a plot of the generated distribution
@@ -38,13 +38,7 @@ ui <- fluidPage(
             # Output: Tabset w/ plot, summary, and table ----
             tabsetPanel(type = "tabs",
                         tabPanel("Plot", plotOutput("a_distPlot", width = "800px", height = "600px"),
-                                 textOutput(outputId = "desc_sims"),
-                                 tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
-                                        "See the paper for details.", target = "_blank"),
-                                 tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
-                                        "Download the code from Github.", target = "_blank")
-                        ),
-                        tabPanel("Summary", verbatimTextOutput("summary"),
+                                 textOutput(outputId = "desc_plot_CAN"),
                                  tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
                                         "See the paper for details.", target = "_blank"),
                                  tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
@@ -59,22 +53,6 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-    set_directories = function() {
-        ### SET_DIRECTORIES
-        # Need a special ad hoc version here because we are running in Shiny server
-        # Create list to store the information
-        DIRS = list()
-        # Set code directory
-        DIRS$CODE = "/home/ubuntu/github/covid-19-importation-risk"
-        # Directories outside Github repo: DATA, others perhaps
-        DIRS$OUTSIDE = "/home/ubuntu"
-        # A few directories to store stuff
-        DIRS$OUTPUT = sprintf("%s/OUTPUT", DIRS$OUTSIDE)
-        DIRS$FIGS = sprintf("%s/FIGS", DIRS$OUTSIDE)
-        DIRS$COVID_DATA = sprintf("%s/DATA", DIRS$OUTSIDE)
-        return(DIRS)
-    }
-    
     # Reactive expression to generate the requested distribution ----
     # This is called whenever the inputs change. The output functions
     # defined below then use the value computed from this expression
@@ -82,27 +60,24 @@ server <- function(input, output) {
         # Prepare results
         OUT = list()
         OUT$nb_days_delay = input$nb_days_delay
-        OUT$DIRS = set_directories()
         return(OUT)
     })
 
     output$a_distPlot <- renderPlot({
         OUT = RESULTS()
         # Determine day of most recent data set for first events
-        data_files_events = list.files(path = OUT$DIRS$COVID_DATA,
+        data_files_events = list.files(path = "data",
                                        pattern = glob2rx("CAN_incidence_first_events_*.Rds"))
         latest_data_file = sort(data_files_events, decreasing = TRUE)[1]
         # Read data set
-        DATA = readRDS(sprintf("%s/%s",
-                               OUT$DIRS$COVID_DATA, latest_data_file))
-        # Remove "Not reported"
+        DATA = readRDS(sprintf("data/%s", latest_data_file))
+        # Remove "Not reported" and "Repatriated" cases, which should not play a role in importations
         idx_to_remove = grep("Not Reported", DATA$incidence_province_hr$health_region)
         DATA$incidence_province_hr = DATA$incidence_province_hr[setdiff(1:dim(DATA$incidence_province_hr)[1],
                                                                         idx_to_remove),]
         idx_to_remove = grep("Repatriated", DATA$incidence_PT)
         DATA$incidence_PT = DATA$incidence_PT[setdiff(1:dim(DATA$incidence_PT)[1],
                                                       idx_to_remove),]
-        
         # Keep only the numbers, not the names
         daily_activity_HR = DATA$incidence_province_hr[3:dim(DATA$incidence_province_hr)[2]]
         daily_activity_PT = DATA$incidence_PT[2:dim(DATA$incidence_PT)[2]]
@@ -113,8 +88,7 @@ server <- function(input, output) {
             nb_HR_with_cases = c(nb_HR_with_cases, length(daily_activity_HR[daily_activity_HR[,i]>0,i]))
             nb_PT_with_cases = c(nb_PT_with_cases, length(daily_activity_PT[daily_activity_PT[,i]>0,i]))
         }
-        
-        # Determine, at a given point in time, which jurisdictions had a case in the past two weeks
+        # Determine, at a given point in time, which jurisdictions had a case in the past N days. That's the "delay"
         delay = OUT$nb_days_delay
         t_start = dates_data[1]+delay
         t_end = dates_data[length(dates_data)]
@@ -161,46 +135,11 @@ server <- function(input, output) {
                inset = 0.01)
     })
     
-    # Generate a summary of the data ----
-    output$summary <- renderPrint({
-        OUT = RESULTS_NEW()
-        nb_extinctions = 0
-        time_extinction = c()
-        for (sim in 1:OUT$params[["nb_sims"]]) {
-            if (OUT$RESULTS[sim,length(OUT$RESULTS[sim,])] == 0) {
-                nb_extinctions = nb_extinctions+1
-                tmp = OUT$RESULTS[sim,]
-                idx_zero = which(tmp==0)[1]
-                time_extinction = c(time_extinction,
-                                    OUT$params[["times"]][idx_zero])
-            }
-        }
-        cat(paste0("Out of ",OUT$params[["nb_sims"]],
-                   " simulations, ",
-                   round(nb_extinctions/OUT$params[["nb_sims"]]*100,2)," percent had extinctions. "))
-        # Compute quartiles
-        quantile_time_extinction = quantile(time_extinction)
-        cat(paste0("The distribution of times to extinction is as follows, in days (0% is the minimun, ",
-                   "25% is the \nfirst quartile, 50% is the median, 75% the third quartile and 100% the maximum):"))
-        print(knitr::kable(quantile_time_extinction))
-    })
-    
-    # Generate an HTML table view of the data ----
-    output$table <- renderTable({
-        OUT = RESULTS_NEW()
-        nb_extinctions = 0
-        for (sim in 1:OUT$params[["nb_sims"]]) {
-            if (OUT$RESULTS[sim,length(OUT$RESULTS[sim,])] == 0) {
-                nb_extinctions = nb_extinctions+1
-            }
-        }
-        print(round(nb_extinctions/OUT$params[["nb_sims"]]*100,2))
-    })
-    
     # Explanation of alluvial plot
-    output$desc_sims <- renderText({
-        exp_text = "This plot shows prevalence (of the selected variables) through time of 100 simulations of an SLIAR model."
-        exp_text = paste(exp_text, "Initial importation is of one case of the selected type.")
+    output$desc_plot_CAN <- renderText({
+        exp_text = "This plot shows the percentage of Provinces and Territories (red) and of Canadian Health Regions (blue) having reported new cases"
+        exp_text = paste(exp_text, "in the number of days chosen by using the slider on the left. For instance, if the default N=21 days is selected")
+        exp_text = paste(exp_text, "then a jurisdiction J is active on day D if it has declared new cases in the period [D-N,D].")
     })
     
     
