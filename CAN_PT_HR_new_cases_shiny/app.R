@@ -60,20 +60,21 @@ ui <- fluidPage(
 server <- function(input, output) {
 
     set_directories = function() {
-    ### SET_DIRECTORIES
-# Need a special ad hoc version here because we are running in Shiny server
-# Create list to store the information
-DIRS = list()
-# Set code directory
-DIRS$CODE = "/home/ubuntu/github/covid-19-importation-risk"
-# Directories outside Github repo: DATA, others perhaps
-DIRS$OUTSIDE = "/home/ubuntu"
-# A few directories to store stuff
-DIRS$OUTPUT = sprintf("%s/OUTPUT", DIRS$OUTSIDE)
-DIRS$FIGS = sprintf("%s/FIGS", DIRS$OUTSIDE)
-DIRS$COVID_DATA = sprintf("%s/DATA", DIRS$OUTSIDE)
-return(DIRS)
+        ### SET_DIRECTORIES
+        # Need a special ad hoc version here because we are running in Shiny server
+        # Create list to store the information
+        DIRS = list()
+        # Set code directory
+        DIRS$CODE = "/home/ubuntu/github/covid-19-importation-risk"
+        # Directories outside Github repo: DATA, others perhaps
+        DIRS$OUTSIDE = "/home/ubuntu"
+        # A few directories to store stuff
+        DIRS$OUTPUT = sprintf("%s/OUTPUT", DIRS$OUTSIDE)
+        DIRS$FIGS = sprintf("%s/FIGS", DIRS$OUTSIDE)
+        DIRS$COVID_DATA = sprintf("%s/DATA", DIRS$OUTSIDE)
+        return(DIRS)
     }
+    
     # Reactive expression to generate the requested distribution ----
     # This is called whenever the inputs change. The output functions
     # defined below then use the value computed from this expression
@@ -81,22 +82,19 @@ return(DIRS)
         # Prepare results
         OUT = list()
         OUT$nb_days_delay = input$nb_days_delay
+        OUT$DIRS = set_directories()
         return(OUT)
     })
 
     output$a_distPlot <- renderPlot({
         OUT = RESULTS()
-        # Set directories
-        source(sprintf("%s/set_directories.R", here::here()))
-        #
-        print(DIRS)
         # Determine day of most recent data set for first events
-        data_files_events = list.files(path = DIRS$COVID_DATA,
+        data_files_events = list.files(path = OUT$DIRS$COVID_DATA,
                                        pattern = glob2rx("CAN_incidence_first_events_*.Rds"))
         latest_data_file = sort(data_files_events, decreasing = TRUE)[1]
         # Read data set
         DATA = readRDS(sprintf("%s/%s",
-                               DIRS$COVID_DATA, latest_data_file))
+                               OUT$DIRS$COVID_DATA, latest_data_file))
         # Remove "Not reported"
         idx_to_remove = grep("Not Reported", DATA$incidence_province_hr$health_region)
         DATA$incidence_province_hr = DATA$incidence_province_hr[setdiff(1:dim(DATA$incidence_province_hr)[1],
@@ -117,7 +115,7 @@ return(DIRS)
         }
         
         # Determine, at a given point in time, which jurisdictions had a case in the past two weeks
-        delay = 21
+        delay = OUT$nb_days_delay
         t_start = dates_data[1]+delay
         t_end = dates_data[length(dates_data)]
         dates_checked = seq(from = t_start, to = t_end, by = "days")
