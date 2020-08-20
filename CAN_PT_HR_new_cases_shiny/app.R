@@ -113,7 +113,8 @@ server <- function(input, output) {
              col = "red",
              pch = 21, 
              ylim = c(0, 100),
-             xlab = "Date", ylab = "Percent with new cases in past 3 weeks")
+             xlab = "Date", 
+             ylab = sprintf("Percent with new cases in past %d days", delay))
         lines(dates_checked, nb_HR_with_cases_Ndays,
               type = "b",
               lwd = 2,
