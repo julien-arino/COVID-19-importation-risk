@@ -22,14 +22,17 @@ library(alluvial)
 ui <- fluidPage(
     # Application title
     titlePanel("COVID-19 quarantine efficacy calculator"),
+    tags$head(
+        tags$style(HTML("hr {border-top: 1px solid #000000;}"))
+    ),
     # Sidebar with sliders for the parameter values
     sidebarLayout(
         sidebarPanel(
-            sliderInput("pi_origin",
+            sliderInput("I_origin",
                         "Prevalence at origin (per 100K):",
                         min = 0,
                         max = 10000,
-                        value = 200),
+                        value = 50),
             sliderInput("pi_origin",
                         "Prop. undetected cases at origin:",
                         min = 0,
@@ -38,6 +41,7 @@ ui <- fluidPage(
             textInput(inputId = "inflow", 
                       label = "Inflow from origin (# people):", 
                       value = "1000"),
+            hr(),
             sliderInput("t_q",
                         "Duration of quarantine (days):",
                         min = 0,
@@ -70,6 +74,13 @@ ui <- fluidPage(
         mainPanel(
             # Output: Tabset w/ plot, summary, and table ----
             tabsetPanel(type = "tabs",
+                        tabPanel("Rate of inflow and quarantine", 
+                                 htmlOutput(outputId = "a_inflow_and_Q"),
+                                 tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
+                                        "See the paper for details.", target = "_blank"),
+                                 tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
+                                        "Download the code from Github.", target = "_blank")
+                        ),
                         tabPanel("Quarantine efficacy", 
                                  plotOutput(outputId = "a_distPlot", width = "800px", height = "600px"),
                                  textOutput(outputId = "desc_efficacy"),
@@ -126,6 +137,37 @@ server <- function(input, output) {
         return(OUT)
     }
 
+    create_text_lambda <- function(params) {
+        OUT = RESULTS_NEW()
+        incidence_origin = OUT$params$I_origin/100000
+        lambda_computed = OUT$params$inflow * incidence_origin *
+            OUT$params$pi_origin
+        # First, compute lambda and 1/lambda without quarantine
+        str = "With the parameters used for travel from the origin and "
+        str = paste0(str, "conditions there, we find a rate of importation ")
+        str = paste0(str, "lambda=", round(lambda_computed,3),
+                     ", or, in other words, a mean time ")
+        str = paste0(str, "between importations of ", 
+                     round(1/lambda_computed,2), " days.<br><br>")
+        # Now compute quarantine efficacy
+        # Suppose all unobservable infected states L_1, L_2, A_1 and A_2 are equiprobable
+        p_X = c(0.25,0.25,0,0,0.25,0.25,0,0,0)
+        # Compute efficacy
+        eff = as.numeric(1-OUT$u_expT %*% p_X)*100
+        lambda_q = lambda_computed*(1-eff/100)
+        str = paste0(str, "Parameters for the disease and quarantine in the ")
+        str = paste0(str, "destination location imply a quarantine that is ")
+        str = paste0(str, round(eff,2), "% efficacious.<br><br>")
+        str = paste0(str, "As a consequence of quarantine, the quarantine ")
+        str = paste0(str, "adjusted value of lambda, lambda_q=")
+        str = paste0(str, round(lambda_q,3), 
+                     " or, in other words, the mean time ")
+        str = paste0(str, "between importations becomes ")
+        str = paste0(str, round(1/lambda_q,2), " days.")
+        # Return output
+        return(str)    
+    }
+    
     # Reactive expression to generate the requested distribution ----
     # This is called whenever the inputs change. The output functions
     # defined below then use the value computed from this expression
@@ -148,11 +190,22 @@ server <- function(input, output) {
         }
         # Duration of quarantine
         params$t_q = input$t_q
+        # Prevalence at origin
+        params$I_origin = input$I_origin
+        # Proportion undetected at origin
+        params$pi_origin = input$pi_origin
+        # Inflow from origin
+        params$inflow = as.numeric(input$inflow)
         # Store results
         OUT = one_matrix(sim, IC, params)
         # Store parameters just in case they are needed elsewhere
         OUT$params = params 
         return(OUT)
+    })
+    
+    output$a_inflow_and_Q <- renderText({
+        str = create_text_lambda(params)
+        print(str)
     })
 
     output$a_distPlot <- renderPlot({
