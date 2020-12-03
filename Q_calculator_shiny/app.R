@@ -43,7 +43,7 @@ ui <- fluidPage(
                         value = 12,
                         step = 0.1),
             sliderInput("pi",
-                        "Prop. asymptomatic or undetected cases:",
+                        "Prop. undetected cases:",
                         min = 0,
                         max = 1,
                         value = 0.5),
