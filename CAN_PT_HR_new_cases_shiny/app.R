@@ -1,8 +1,10 @@
 # COVID-19 new cases within Canada
 # 
-# Based on the paper "Assessing the risk of COVID-19 importation and the effect of quarantine"
-# by Julien Arino, Nicolas Bajeux, Stephanie Portet and James Watmough
-# https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1
+# Based on the paper 
+# Assessing the risk of COVID-19 importation and the effect of quarantine
+# Julien Arino, Nicolas Bajeux, Stephanie Portet and James Watmough
+# Epidemiology and Infection 148:e298 (2020)
+# https://doi.org/10.1017/S0950268820002988
 # 
 # See the paper for details
 #
@@ -39,7 +41,7 @@ ui <- fluidPage(
             tabsetPanel(type = "tabs",
                         tabPanel("Plot", plotOutput("a_distPlot", width = "800px", height = "600px"),
                                  textOutput(outputId = "desc_plot_CAN"),
-                                 tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
+                                 tags$a(href = "https://doi.org/10.1017/S0950268820002988", 
                                         "See the paper for details.", target = "_blank"),
                                  tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
                                         "Download the code from Github.", target = "_blank")
@@ -66,11 +68,11 @@ server <- function(input, output) {
     output$a_distPlot <- renderPlot({
         OUT = RESULTS()
         # Determine day of most recent data set for first events
-        data_files_events = list.files(path = "data",
+        data_files_events = list.files(path = "DATA",
                                        pattern = glob2rx("CAN_incidence_first_events_*.Rds"))
         latest_data_file = sort(data_files_events, decreasing = TRUE)[1]
         # Read data set
-        DATA = readRDS(sprintf("data/%s", latest_data_file))
+        DATA = readRDS(sprintf("DATA/%s", latest_data_file))
         # Remove "Not reported" and "Repatriated" cases, which should not play a role in importations
         idx_to_remove = grep("Not Reported", DATA$incidence_province_hr$health_region)
         DATA$incidence_province_hr = DATA$incidence_province_hr[setdiff(1:dim(DATA$incidence_province_hr)[1],

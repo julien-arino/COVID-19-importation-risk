@@ -1,8 +1,10 @@
 # COVID-19 single introduction response simulation
 # 
-# Based on the paper "Assessing the risk of COVID-19 importation and the effect of quarantine"
-# by Julien Arino, Nicolas Bajeux, Stephanie Portet and James Watmough
-# https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1
+# Based on the paper 
+# Assessing the risk of COVID-19 importation and the effect of quarantine
+# Julien Arino, Nicolas Bajeux, Stephanie Portet and James Watmough
+# Epidemiology and Infection 148:e298 (2020)
+# https://doi.org/10.1017/S0950268820002988
 # 
 # See the paper for details
 #
@@ -107,13 +109,13 @@ ui <- fluidPage(
             tabsetPanel(type = "tabs",
                         tabPanel("Plot", plotOutput("a_distPlot", width = "800px", height = "600px"),
                                  textOutput(outputId = "desc_sims"),
-                                 tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
+                                 tags$a(href = "https://doi.org/10.1017/S0950268820002988", 
                                         "See the paper for details.", target = "_blank"),
                                  tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
                                         "Download the code from Github.", target = "_blank")
                         ),
                         tabPanel("Summary", verbatimTextOutput("summary"),
-                                 tags$a(href = "https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1", 
+                                 tags$a(href = "https://doi.org/10.1017/S0950268820002988", 
                                         "See the paper for details.", target = "_blank"),
                                  tags$a(href = "https://github.com/julien-arino/covid-19-importation-risk", 
                                         "Download the code from Github.", target = "_blank")
