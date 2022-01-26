@@ -1,7 +1,7 @@
 # A COVID-19 quarantine calculator
 # 
 # Based on the paper 
-# Assessing the risk of COVID-19 importation and the effect of quarantine
+# Quarantine and the risk of COVID-19 importation
 # Julien Arino, Nicolas Bajeux, Stephanie Portet and James Watmough
 # Epidemiology and Infection 148:e298 (2020)
 # https://doi.org/10.1017/S0950268820002988
