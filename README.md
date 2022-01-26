@@ -1,6 +1,9 @@
 # covid-19-importation-risk
 
-These are files used in and as a complement to the paper _Quarantine and the risk of COVID-19 importation_, by Julien Arino, Nicolas Bajeux, Stephanie Portet and James Watmough. While the paper has not found a home yet, it is available on medRxiv [here](https://www.medrxiv.org/content/10.1101/2020.08.12.20173658v1). We will progressively be adding files here.
+These are files used in and as a complement to the paper _Assessing the risk of COVID-19 importation and the effect of quarantine_, 
+by Julien Arino, Nicolas Bajeux, Stephanie Portet and James Watmough, published in Epidemiology and Infection 148:e298 (2020), 
+available [here](https://doi.org/10.1017/S0950268820002988). 
+We will progressively be adding files here.
 
 We have set up a small AWS server on which the (R) Shiny apps run, so you can try these components without having to install R. It is located [here](http://35.182.10.46:3838/). However, be mindful of the fact we purposefully limited capacities because of the limited capacity of the server. To run code as in the paper, you will have to download the code and run it yourself. Note that you can run the Shiny apps from R without cloning the Github repo by using a command of the form
 ```
