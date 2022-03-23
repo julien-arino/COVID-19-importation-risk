@@ -2,7 +2,7 @@
 
 These are files used in and as a complement to the paper _Quarantine and the risk of COVID-19 importation_, by Julien Arino, Nicolas Bajeux, Stephanie Portet and James Watmough, published in Epidemiology and Infection 148:e298 (2020), available [here](https://doi.org/10.1017/S0950268820002988). We will progressively be adding files here.
 
-We have set up a small OVH server on which the (R) Shiny apps run, so you can try these components without having to install R. It is located [here](http://daytah-or-dahtah.ovh:3838/). However, be mindful of the fact we purposefully limited capacities because of the limited capacity of the server. To run code as in the paper, you will have to download the code and run it yourself. Note that you can run the Shiny apps from R without cloning the Github repo by using a command of the form
+We have set up a small OVH server on which the (R) Shiny apps run, so you can try these components without having to install R. It is located [here](https://daytah-or-dahtah.ovh:3838/). However, be mindful of the fact we purposefully limited capacities because of the limited capacity of the server. To run code as in the paper, you will have to download the code and run it yourself. Note that you can run the Shiny apps from R without cloning the Github repo by using a command of the form
 ```
 shiny::runGitHub("julien-arino/covid-19-importation-risk", username = "some-github-user-name", subdir = "subdir_name")
 ```
